@@ -9,60 +9,28 @@
   const REDUCED_MOTION = Boolean(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
 
-  // The input stream and the reading-paced presentation queue advance independently.
+  // Synthetic knowledge-base fixture; no live model or company policy.
   const AGENT_STREAM = [
   {
     "event": "demo.run.started",
     "data": {
       "status": "running",
-      "message": "示例分析已开始。"
-    }
-  },
-  {
-    "event": "demo.session.title",
-    "data": {
-      "title": "示例团队月度费用比较"
-    }
-  },
-  {
-    "event": "demo.progress",
-    "data": {
-      "phase": "planning",
-      "status": "running",
-      "message": "准备比较两个月的团队费用。"
-    }
-  },
-  {
-    "event": "demo.plan.summary",
-    "data": {
-      "message": "先确认字段，再进行月度汇总。"
-    }
-  },
-  {
-    "event": "demo.progress",
-    "data": {
-      "phase": "collecting_evidence",
-      "status": "running",
-      "message": "Agent 第1轮：正在分析..."
+      "message": "知识库问答演示；文档、条款及调用均为模拟数据。"
     }
   },
   {
     "event": "demo.agent.thinking",
     "data": {
       "turn": 1,
-      "delta": "需要比较示例团队在5月和6月的费用，先确认演示数据中的表和字段。"
+      "delta": "“删除”不一定等于所有副本清除。检索删除时限与备份规则。"
     }
   },
   {
     "event": "demo.agent.llm.call",
     "data": {
       "turn": 1,
-      "purpose": "schema_inspection",
-      "model": "demo-model",
-      "prompt_tokens": 1000,
-      "completion_tokens": 100,
-      "total_tokens": 1100,
-      "latency_ms": 600,
+      "purpose": "检索删除时限与备份规则",
+      "model": "模拟模型",
       "status": "ok"
     }
   },
@@ -70,38 +38,87 @@
     "event": "demo.agent.step",
     "data": {
       "turn": 1,
-      "tool_name": "get_schema",
-      "tool_input": "{\"tables\": [\"demo_teams\", \"demo_costs\"]}",
+      "call_id": "search",
+      "tool_name": "search_knowledge",
+      "tool_input": "{\"query\": \"上传文件 删除 清除期限 备份\", \"top_k\": 8}",
+      "display_text": "检索产品知识库——召回 8 段，出现 7 天与 30 天两种口径",
       "success": true,
-      "summary": "## demo_teams\n  - id (INT) [PK]\n  - name (VARCHAR(64))\n\n## demo_costs\n  - id (INT) [PK]\n  - team_id (INT)\n  - category (VARCHAR(64))\n  - amount (DECIMAL)\n  - cost_date (DATE)",
-      "latency_ms": 40
+      "summary": "召回 8 段，出现 7 天与 30 天两种口径",
+      "source": "",
+      "excerpt": ""
     }
   },
   {
-    "event": "demo.progress",
+    "event": "demo.agent.step",
     "data": {
-      "phase": "collecting_evidence",
-      "status": "running",
-      "message": "Agent 第2轮：正在分析..."
+      "turn": 1,
+      "call_id": "rank",
+      "tool_name": "rerank",
+      "tool_input": "{\"candidates\": 8, \"keep\": 3}",
+      "display_text": "按相关性重排——保留现行规范、旧版 FAQ 与备份说明",
+      "success": true,
+      "summary": "保留现行规范、旧版 FAQ 与备份说明",
+      "source": "",
+      "excerpt": ""
+    }
+  },
+  {
+    "event": "demo.agent.thinking",
+    "data": {
+      "turn": 1,
+      "delta": "“删除”不一定等于所有副本清除。读取条款原文与版本信息。"
+    }
+  },
+  {
+    "event": "demo.agent.llm.call",
+    "data": {
+      "turn": 1,
+      "purpose": "读取条款原文与版本信息",
+      "model": "模拟模型",
+      "status": "ok"
+    }
+  },
+  {
+    "event": "demo.agent.step",
+    "data": {
+      "turn": 1,
+      "call_id": "old",
+      "tool_name": "read_document",
+      "tool_input": "{\"document_id\": \"faq-v1.8\", \"section\": \"2\"}",
+      "display_text": "读取旧版 FAQ——删除后 7 天清除，文档已归档",
+      "success": true,
+      "summary": "删除后 7 天清除，文档已归档",
+      "source": "数据删除 FAQ · v1.8 · §2",
+      "excerpt": "删除后的文件在 7 天内清除。此文档已归档，由 v2.3 替代。"
+    }
+  },
+  {
+    "event": "demo.agent.step",
+    "data": {
+      "turn": 1,
+      "call_id": "new",
+      "tool_name": "read_document",
+      "tool_input": "{\"document_id\": \"lifecycle-v2.3\", \"section\": \"4\"}",
+      "display_text": "读取现行规范——在线文件 24 小时内清除；备份最长保留 30 天",
+      "success": true,
+      "summary": "在线文件 24 小时内清除；备份最长保留 30 天",
+      "source": "文件生命周期规范 · v2.3 · §4",
+      "excerpt": "标准云服务：删除请求确认后，在线文件在 24 小时内清除，备份随轮转在 30 天内清除。"
     }
   },
   {
     "event": "demo.agent.thinking",
     "data": {
       "turn": 2,
-      "delta": "字段可以支持按团队汇总月度费用，接下来分别查询5月和6月，比较变化。"
+      "delta": "7 天来自旧版，不能作为当前承诺。核对生效日期与适用范围。"
     }
   },
   {
     "event": "demo.agent.llm.call",
     "data": {
       "turn": 2,
-      "purpose": "monthly_comparison",
-      "model": "demo-model",
-      "prompt_tokens": 1400,
-      "completion_tokens": 200,
-      "total_tokens": 1600,
-      "latency_ms": 800,
+      "purpose": "核对生效日期与适用范围",
+      "model": "模拟模型",
       "status": "ok"
     }
   },
@@ -109,38 +126,185 @@
     "event": "demo.agent.step",
     "data": {
       "turn": 2,
-      "tool_name": "query_sql",
-      "tool_input": "{\"sql\": \"SELECT t.name, SUM(c.amount) AS cost FROM demo_costs c JOIN demo_teams t ON c.team_id=t.id WHERE MONTH(cost_date)=6 AND YEAR(cost_date)=2026 GROUP BY t.name\", \"purpose\": \"6月各团队费用\"}",
+      "call_id": "version",
+      "tool_name": "read_document",
+      "tool_input": "{\"document_id\": \"changes-v2.3\"}",
+      "display_text": "核对版本变更记录——v2.3 已生效，替代旧版 FAQ",
       "success": true,
-      "summary": "(3 rows)\n| name | cost |\n| 团队 A | 180000.00 |\n| 团队 B | 72000.00 |\n| 团队 C | 48000.00 |",
-      "latency_ms": 30
+      "summary": "v2.3 已生效，替代旧版 FAQ",
+      "source": "版本变更记录 · v2.3",
+      "excerpt": "v2.3 自 2026-08-01 生效，替代 v1.8 删除时限说明。"
     }
   },
   {
     "event": "demo.agent.step",
     "data": {
       "turn": 2,
-      "tool_name": "query_sql",
-      "tool_input": "{\"sql\": \"SELECT t.name, SUM(c.amount) AS cost FROM demo_costs c JOIN demo_teams t ON c.team_id=t.id WHERE MONTH(cost_date)=5 AND YEAR(cost_date)=2026 GROUP BY t.name\", \"purpose\": \"5月各团队费用\"}",
+      "call_id": "scope",
+      "tool_name": "read_document",
+      "tool_input": "{\"document_id\": \"lifecycle-v2.3\", \"section\": \"1\"}",
+      "display_text": "检查部署范围——仅适用于标准云服务，私有部署另行约定",
       "success": true,
-      "summary": "(3 rows)\n| name | cost |\n| 团队 A | 120000.00 |\n| 团队 B | 60000.00 |\n| 团队 C | 40000.00 |",
-      "latency_ms": 30
+      "summary": "仅适用于标准云服务，私有部署另行约定",
+      "source": "文件生命周期规范 · v2.3 · §1",
+      "excerpt": "本规范适用于标准云服务。私有部署及专属合同约定不适用。"
+    }
+  },
+  {
+    "event": "demo.agent.thinking",
+    "data": {
+      "turn": 2,
+      "delta": "7 天来自旧版，不能作为当前承诺。补查备份保留期间能否访问。"
+    }
+  },
+  {
+    "event": "demo.agent.llm.call",
+    "data": {
+      "turn": 2,
+      "purpose": "补查备份保留期间能否访问",
+      "model": "模拟模型",
+      "status": "ok"
+    }
+  },
+  {
+    "event": "demo.agent.step",
+    "data": {
+      "turn": 2,
+      "call_id": "backup-search",
+      "tool_name": "search_knowledge",
+      "tool_input": "{\"query\": \"删除后 备份 用户访问\", \"top_k\": 5}",
+      "display_text": "检索备份访问规则——未命中“删除后访问”的直接说明",
+      "success": true,
+      "summary": "未命中“删除后访问”的直接说明",
+      "source": "",
+      "excerpt": ""
+    }
+  },
+  {
+    "event": "demo.agent.step",
+    "data": {
+      "turn": 2,
+      "call_id": "backup-retry",
+      "tool_name": "search_knowledge",
+      "tool_input": "{\"query\": \"隔离副本 灾难恢复 删除标记\", \"top_k\": 5}",
+      "display_text": "改用“隔离副本／灾难恢复”检索——命中备份隔离与恢复条款",
+      "success": true,
+      "summary": "命中备份隔离与恢复条款",
+      "source": "",
+      "excerpt": ""
+    }
+  },
+  {
+    "event": "demo.agent.thinking",
+    "data": {
+      "turn": 3,
+      "delta": "备份尚未清除，不代表用户仍能访问。核验隔离机制与恢复限制。"
+    }
+  },
+  {
+    "event": "demo.agent.llm.call",
+    "data": {
+      "turn": 3,
+      "purpose": "核验隔离机制与恢复限制",
+      "model": "模拟模型",
+      "status": "ok"
+    }
+  },
+  {
+    "event": "demo.agent.step",
+    "data": {
+      "turn": 3,
+      "call_id": "isolation",
+      "tool_name": "read_document",
+      "tool_input": "{\"document_id\": \"backup-policy\", \"section\": \"3\"}",
+      "display_text": "读取备份隔离条款——备份不开放用户读取，仅用于灾难恢复",
+      "success": true,
+      "summary": "备份不开放用户读取，仅用于灾难恢复",
+      "source": "备份与恢复规范 · §3",
+      "excerpt": "备份副本与在线服务隔离，不提供用户查询或下载入口；仅用于授权的灾难恢复。"
+    }
+  },
+  {
+    "event": "demo.agent.step",
+    "data": {
+      "turn": 3,
+      "call_id": "restore",
+      "tool_name": "read_document",
+      "tool_input": "{\"document_id\": \"backup-policy\", \"section\": \"5\"}",
+      "display_text": "核对恢复后的删除处理——恢复前须重放删除标记",
+      "success": true,
+      "summary": "恢复前须重放删除标记",
+      "source": "备份与恢复规范 · §5",
+      "excerpt": "灾难恢复时，恢复数据重新提供服务前必须重放删除标记。"
+    }
+  },
+  {
+    "event": "demo.agent.thinking",
+    "data": {
+      "turn": 3,
+      "delta": "备份尚未清除，不代表用户仍能访问。检查是否存在保留例外。"
+    }
+  },
+  {
+    "event": "demo.agent.llm.call",
+    "data": {
+      "turn": 3,
+      "purpose": "检查是否存在保留例外",
+      "model": "模拟模型",
+      "status": "ok"
+    }
+  },
+  {
+    "event": "demo.agent.step",
+    "data": {
+      "turn": 3,
+      "call_id": "exception",
+      "tool_name": "read_document",
+      "tool_input": "{\"document_id\": \"lifecycle-v2.3\", \"section\": \"6\"}",
+      "display_text": "读取保留例外——法律保留不受常规清除时限约束",
+      "success": true,
+      "summary": "法律保留不受常规清除时限约束",
+      "source": "文件生命周期规范 · v2.3 · §6",
+      "excerpt": "已进入法律保留的文件不适用常规清除时限，解除保留后按批准流程处理。"
+    }
+  },
+  {
+    "event": "demo.agent.thinking",
+    "data": {
+      "turn": 4,
+      "delta": "可以说明标准时限，尚不能替客户确认适用性。逐项核对结论与引用依据。"
+    }
+  },
+  {
+    "event": "demo.agent.llm.call",
+    "data": {
+      "turn": 4,
+      "purpose": "逐项核对结论与引用依据",
+      "model": "模拟模型",
+      "status": "ok"
+    }
+  },
+  {
+    "event": "demo.agent.step",
+    "data": {
+      "turn": 4,
+      "call_id": "verify",
+      "tool_name": "verify_citations",
+      "tool_input": "{\"claims\": [\"在线清除与备份轮转\", \"备份隔离与删除重放\", \"部署范围与法律保留\"]}",
+      "display_text": "核对答案中的时限与例外——3 组结论均有原文依据；部署方式仍需客户确认",
+      "success": true,
+      "summary": "3 组结论均有原文依据；部署方式仍需客户确认",
+      "source": "",
+      "excerpt": ""
     }
   },
   {
     "event": "demo.agent.done",
     "data": {
       "reason": "complete",
-      "turn_count": 2,
-      "tool_calls": 3,
-      "tool_errors": 0,
-      "message": "示例分析完成，共2轮分析、3次工具调用。"
-    }
-  },
-  {
-    "event": "demo.answer.delta",
-    "data": {
-      "delta": "6月费用为300,000元，5月为220,000元，增加80,000元（36.4%）。"
+      "turn_count": 4,
+      "tool_calls": 12,
+      "tool_errors": 0
     }
   },
   {
@@ -149,138 +313,176 @@
       "blocks": [
         {
           "type": "text",
-          "content": "团队 A 费用增加60,000元，占总增量的75%。当前汇总不能说明具体费用类别的变化原因。"
-        }
-      ],
-      "sql_results": [
-        {
-          "sql": "SELECT t.name, SUM(c.amount) AS cost FROM demo_costs c JOIN demo_teams t ON c.team_id=t.id WHERE MONTH(cost_date)=6 AND YEAR(cost_date)=2026 GROUP BY t.name",
-          "columns": [
-            "name",
-            "cost"
-          ],
-          "column_descriptions": [
-            "示例团队",
-            "费用合计"
-          ],
-          "rows": [
-            [
-              "团队 A",
-              180000
-            ],
-            [
-              "团队 B",
-              72000
-            ],
-            [
-              "团队 C",
-              48000
-            ]
-          ],
-          "total_count": 3,
-          "db_name": "demo_db",
-          "table_names": [
-            "demo_costs",
-            "demo_teams"
-          ],
-          "round_question": "6月各团队费用"
+          "content": "不能把“删除后多久彻底清除”回答成一个统一时限。按当前知识库，标准云服务的在线文件与备份副本分别处理：在线文件在删除请求确认后 24 小时内清除，备份随轮转在 30 天内清除；法律保留属于例外。①③"
         },
         {
-          "sql": "SELECT t.name, SUM(c.amount) AS cost FROM demo_costs c JOIN demo_teams t ON c.team_id=t.id WHERE MONTH(cost_date)=5 AND YEAR(cost_date)=2026 GROUP BY t.name",
-          "columns": [
-            "name",
-            "cost"
-          ],
-          "column_descriptions": [
-            "示例团队",
-            "费用合计"
-          ],
-          "rows": [
-            [
-              "团队 A",
-              120000
-            ],
-            [
-              "团队 B",
-              60000
-            ],
-            [
-              "团队 C",
-              40000
-            ]
-          ],
-          "total_count": 3,
-          "db_name": "demo_db",
-          "table_names": [
-            "demo_costs",
-            "demo_teams"
-          ],
-          "round_question": "5月各团队费用"
+          "type": "text",
+          "content": "客户提到的“删除后还能不能访问”，与“所有副本是否已经物理清除”也是两个问题。备份尚在保留期，并不意味着客户仍可查询或下载。以下按文件所在位置、规范版本和适用条件分别说明。"
+        },
+        {
+          "type": "text",
+          "content": "1. 在线文件与备份，为什么是两个时限"
+        },
+        {
+          "type": "text",
+          "content": "现行《文件生命周期规范》将在线文件和备份分开约定。在线文件的清除从删除请求确认后计算，时限为 24 小时；备份沿既定轮转周期清除，最长为 30 天。因此，在线文件已清除时，备份副本仍可能处于保留期，两者并不矛盾。①"
+        },
+        {
+          "type": "text",
+          "content": "对外沟通应保留“请求确认后”这一计时起点，不能直接改成“用户点击删除后”。现有引用没有给出前端点击与后台确认之间的时差，也没有证明某个具体文件此刻已经完成清除。制度规定的最长时限与单个文件的实际处理状态，需要分别核对。"
+        },
+        {
+          "type": "text",
+          "content": "2. 备份保留期间，谁还能读取"
+        },
+        {
+          "type": "text",
+          "content": "《备份与恢复规范》说明，备份副本与在线服务隔离，不提供用户查询或下载入口，仅用于授权的灾难恢复。这支持“用户不能通过常规产品入口读取备份”的表述，但不能扩展成“任何人、任何情况下都无法访问”，因为授权恢复本身就是规定允许的用途。②"
+        },
+        {
+          "type": "text",
+          "content": "恢复还有一道后续约束：数据重新提供服务前，必须重放删除标记。也就是说，从历史备份恢复数据时，需要再次执行已记录的删除要求，不能直接把整个旧快照重新开放给用户。该条款说明了恢复流程应如何处理已删除文件，并不等于本轮已经审计过恢复任务的实际执行。②"
+        },
+        {
+          "type": "text",
+          "content": "3. 为什么没有采用 FAQ 中的“7 天”"
+        },
+        {
+          "type": "text",
+          "content": "本轮检索同时命中了旧版 FAQ 和现行规范。旧版 FAQ 写的是 7 天，但文档已归档；版本变更记录明确，v2.3 自 2026 年 8 月 1 日生效，并替代 v1.8 的删除时限说明。因此，当前标准云服务应使用 v2.3 的口径，不能将两个版本的数字混在一起，也不能取其中更短的数字作为承诺。④"
+        },
+        {
+          "type": "text",
+          "content": "这里的关键依据是明确的版本替代关系，而不仅是文件更新时间更近。如果后续查到客户专属合同或另一部署版本的规范，还需要重新确认适用性，不能只凭当前这份通用文档下结论。"
+        },
+        {
+          "type": "text",
+          "content": "4. 两类情况不能直接套用上述时限"
+        },
+        {
+          "type": "text",
+          "content": "私有部署或专属合同：现行规范限定于标准云服务，其他部署方式和专属约定需要单独核对。法律保留：已进入法律保留的文件不适用常规清除时限；解除保留后，按批准流程处理。本轮材料没有给出解除后的统一清除天数。"
+        },
+        {
+          "type": "text",
+          "content": "因此，在未确认客户部署方式、合同约定和文件保留状态前，可以解释通用规则，但不宜直接承诺“您的文件一定在 30 天内全部清除”。③"
+        },
+        {
+          "type": "text",
+          "content": "5. 建议给客户的回复"
+        },
+        {
+          "type": "text",
+          "content": "如果您使用的是标准云服务，且文件不涉及法律保留，按现行规范，在线文件会在删除请求确认后 24 小时内清除，备份副本随轮转在 30 天内清除。备份保留期间不提供用户查询或下载入口，仅用于授权的灾难恢复；恢复数据重新提供服务前，还须重放删除标记。我们需要进一步确认您的部署方式、是否存在专属合同约定，以及此次删除请求的确认时间，才能核实具体文件的清除安排。"
+        },
+        {
+          "type": "text",
+          "content": "6. 本轮仍未确认的内容"
+        },
+        {
+          "type": "text",
+          "content": "本轮核对的是知识库中的规范，并未查询客户实例或实际删除日志。尚未确认客户的部署类型、专属合同、法律保留状态、请求确认时间，以及在线文件和备份的实际清除结果。若客户需要清除完成证明，下一步应查询对应操作记录，而不是将文档时限当成已完成的凭证。"
         }
       ],
-      "rag_chunks": [],
-      "limitations": [
-        "仅有团队汇总，不能推断费用类别。"
-      ],
-      "next_actions": [
-        "按费用类别进一步查询"
+      "rag_chunks": [
+        {
+          "source": "数据删除 FAQ · v1.8 · §2",
+          "text": "删除后的文件在 7 天内清除。此文档已归档，由 v2.3 替代。",
+          "call_id": "old"
+        },
+        {
+          "source": "文件生命周期规范 · v2.3 · §4",
+          "text": "标准云服务：删除请求确认后，在线文件在 24 小时内清除，备份随轮转在 30 天内清除。",
+          "call_id": "new"
+        },
+        {
+          "source": "版本变更记录 · v2.3",
+          "text": "v2.3 自 2026-08-01 生效，替代 v1.8 删除时限说明。",
+          "call_id": "version"
+        },
+        {
+          "source": "文件生命周期规范 · v2.3 · §1",
+          "text": "本规范适用于标准云服务。私有部署及专属合同约定不适用。",
+          "call_id": "scope"
+        },
+        {
+          "source": "备份与恢复规范 · §3",
+          "text": "备份副本与在线服务隔离，不提供用户查询或下载入口；仅用于授权的灾难恢复。",
+          "call_id": "isolation"
+        },
+        {
+          "source": "备份与恢复规范 · §5",
+          "text": "灾难恢复时，恢复数据重新提供服务前必须重放删除标记。",
+          "call_id": "restore"
+        },
+        {
+          "source": "文件生命周期规范 · v2.3 · §6",
+          "text": "已进入法律保留的文件不适用常规清除时限，解除保留后按批准流程处理。",
+          "call_id": "exception"
+        }
       ]
-    }
-  },
-  {
-    "event": "demo.trace.summary",
-    "data": {
-      "total_latency_ms": 1500,
-      "llm_calls": 2,
-      "total_tokens": 2700,
-      "phases": [
-        {
-          "name": "schema_inspection",
-          "latency_ms": 640,
-          "status": "ok"
-        },
-        {
-          "name": "monthly_comparison",
-          "latency_ms": 860,
-          "status": "ok"
-        }
-      ],
-      "agent_summary": {
-        "turn_count": 2,
-        "tool_calls": 3,
-        "tool_errors": 0,
-        "done_reason": "complete"
-      }
     }
   },
   {
     "event": "demo.run.completed",
     "data": {
-      "status": "completed",
-      "total_latency_ms": 1500
+      "status": "completed"
     }
   }
 ];
-
-  // Fixed display projections for this fixture; no model is called to summarize it.
   const THINKING_COPY = new Map([
   [
-    "需要比较示例团队在5月和6月的费用，先确认演示数据中的表和字段。",
+    "“删除”不一定等于所有副本清除。检索删除时限与备份规则。",
     {
-      "reaction": "先确认可用表与字段",
-      "intent": "查看团队与费用表结构"
+      "reaction": "“删除”不一定等于所有副本清除",
+      "intent": "检索删除时限与备份规则"
     }
   ],
   [
-    "字段可以支持按团队汇总月度费用，接下来分别查询5月和6月，比较变化。",
+    "“删除”不一定等于所有副本清除。读取条款原文与版本信息。",
     {
-      "reaction": "字段足以支持月度比较",
-      "intent": "查询 5 月和 6 月各团队费用"
+      "reaction": "“删除”不一定等于所有副本清除",
+      "intent": "读取条款原文与版本信息"
+    }
+  ],
+  [
+    "7 天来自旧版，不能作为当前承诺。核对生效日期与适用范围。",
+    {
+      "reaction": "7 天来自旧版，不能作为当前承诺",
+      "intent": "核对生效日期与适用范围"
+    }
+  ],
+  [
+    "7 天来自旧版，不能作为当前承诺。补查备份保留期间能否访问。",
+    {
+      "reaction": "7 天来自旧版，不能作为当前承诺",
+      "intent": "补查备份保留期间能否访问"
+    }
+  ],
+  [
+    "备份尚未清除，不代表用户仍能访问。核验隔离机制与恢复限制。",
+    {
+      "reaction": "备份尚未清除，不代表用户仍能访问",
+      "intent": "核验隔离机制与恢复限制"
+    }
+  ],
+  [
+    "备份尚未清除，不代表用户仍能访问。检查是否存在保留例外。",
+    {
+      "reaction": "备份尚未清除，不代表用户仍能访问",
+      "intent": "检查是否存在保留例外"
+    }
+  ],
+  [
+    "可以说明标准时限，尚不能替客户确认适用性。逐项核对结论与引用依据。",
+    {
+      "reaction": "可以说明标准时限，尚不能替客户确认适用性",
+      "intent": "逐项核对结论与引用依据"
     }
   ]
 ]);
 
-  const GLYPH_D = "M59.6 5.9a50 22 0 1 1 0 44a50 22 0 1 1 0-44M59.6 15.9a40 12 0 1 0 0 24a40 12 0 1 0 0-24";
+  const GLYPH_D = "M92.4391351,0C77.6527943,0.00399456433 65.6595758,11.9855366 65.646363,26.7755647 L65.646363,26.7755647 L65.646363,27.5056482 C65.646363,30.3491634 67.9515339,32.6543343 70.7944346,32.6543343 L70.7944346,32.6543343 C73.6379498,32.6543343 75.9431207,30.3491634 75.9431207,27.5056482 L75.9431207,27.5056482 L75.9431207,26.7755647 C75.9302152,22.4024386 77.6712307,18.2059951 80.7774654,15.1268006 L80.7774654,15.1268006 C83.8941474,12.0141131 88.1240838,10.2737122 92.5288591,10.2930705 L92.5288591,10.2930705 L93.0736563,10.2930705 C101.811919,10.3029032 108.89336,17.3834222 108.903807,26.1219925 L108.903807,26.1219925 L108.903807,28.6997156 L108.903807,28.7003302 C108.903807,37.8011768 101.525847,45.1791372 92.4250005,45.1791372 L92.4250005,45.1791372 L74.1845906,45.1791372 C65.2837795,45.1689971 58.0711326,37.9566576 58.0609926,29.0561537 L58.0609926,29.0561537 L58.0609926,8.11326744 C58.0609926,6.30526616 57.3401274,4.57193252 56.0575649,3.29766649 L56.0575649,3.29766649 C53.3984142,0.655108551 49.100263,0.668628615 46.457705,3.32777936 L46.457705,3.32777936 L33.6456008,16.2194676 C33.6360753,16.2289931 33.6268571,16.2382113 33.6179462,16.2471222 L33.6179462,16.2471222 C31.0687996,18.7809051 26.9482528,18.7689214 24.4144699,16.2194676 L24.4144699,16.2194676 L11.602673,3.3333103 C10.328407,2.05136242 8.59538062,1.33018992 6.78768663,1.33018992 L6.78768663,1.33018992 C3.03832709,1.33080447 0,4.37036066 0,8.11941292 L0,8.11941292 L0,50.6907141 C0,53.5339221 2.30486362,55.8387857 5.1480716,55.8387857 L5.1480716,55.8387857 L5.14899343,55.8387857 C7.99250868,55.8375566 10.297065,53.5320785 10.2961432,50.6885632 L10.2961432,50.6885632 L10.2961432,16.6213822 L17.1111772,23.4772837 C17.1354519,23.5015583 17.1597266,23.525833 17.1840012,23.5504149 L17.1840012,23.5504149 C23.7661214,30.0919749 34.4051826,30.0594039 40.9470499,23.4772837 L40.9470499,23.4772837 L47.763313,16.6186167 L47.763313,29.0583046 C47.7799058,43.6427663 59.5988999,55.461453 74.1830542,55.4780458 L74.1830542,55.4780458 L92.4237714,55.4780458 C107.211649,55.4780458 119.199643,43.4897437 119.199643,28.7021738 L119.199643,28.7021738 L119.199643,26.1241435 C119.181821,11.7028444 107.494955,0.0165928057 93.073349,0 L93.073349,0 L92.4391351,0 Z";
   const GLYPH_SVG = "<svg viewBox=\"0 0 119.2 55.9\" preserveAspectRatio=\"xMidYMid meet\"><path d=\"" + GLYPH_D + "\"/></svg>";
   const PATH_COLORS = ["#27fef2","#27fef2","#27fff2","#27fef2","#25faf2","#22e8f2","#1fd9f2","#1ccaf2","#18baf1","#18bbf1","#1ac7f1","#20def2","#22ebf2","#25f8f2","#27fff2","#27fef2","#27fff2","#27fff2","#26fcf2","#23eef2","#20def2","#1ccef1","#19bef1","#16b1f1","#14a7f1","#13a2f1","#129ef1","#119bf1","#1096f1","#119af1","#129ff1","#15aef1","#18bbf1","#17b9f0","#0e90e9","#22eaf2","#26fbf2","#27fbf2","#24f1f2","#20e1f2","#1dd5f2","#1ac5f2","#18baf1","#19bef1","#1ac4f1","#1bc9f1","#1dd0f1","#1ed2f2","#1ac6f1","#16b3f0","#0564e5","#0c87f2","#0d88f2","#0a79f1","#0668f0","#0359f0","#004af0","#004bf4","#004ef4","#0150f0","#0562f0","#0975f0","#0b7ff1","#0f90f2","#0d89f2","#15acf1","#13a4f1","#119bf1","#129df1","#13a0f1","#14aaf1","#17b4f1","#1ac4f1","#15aeef","#18b9f1","#15aaf1","#129ef1","#0e8df1","#0d89f1","#0a7cf2","#0a7cf1","#0b7cf2","#0b7ef1","#0c83f1","#0d88f2","#0e8df1","#1095f1","#12a1f1","#15aef1","#18bcf2","#1cccf1","#1fdaf2","#22e6f2","#26f9f2","#27fff2","#27fff2","#27fef2","#26fef2","#26fef2","#27fef2","#27fef2"];
 
@@ -294,6 +496,9 @@
     const end = rgb(PATH_COLORS[Math.min(last, index + 1)]);
     return Math.round(start[0] + (end[0] - start[0]) * mix) + "," + Math.round(start[1] + (end[1] - start[1]) * mix) + "," + Math.round(start[2] + (end[2] - start[2]) * mix);
   }
+
+  const BRAND_IMG = new Image();
+  BRAND_IMG.src = "brand/mo-icon-color.png";
 
   function startGlow(glyphEl) {
     if (REDUCED_MOTION) return;
@@ -321,14 +526,11 @@
     const paintBrand = () => {
       brandContext.save();
       brandContext.clip(clipPath);
-      const gradient = brandContext.createLinearGradient(0, 0, width, height);
-      gradient.addColorStop(0, "#27fef2");
-      gradient.addColorStop(1, "#2f6fed");
-      brandContext.fillStyle = gradient;
-      brandContext.fillRect(0, 0, width, height);
+      brandContext.drawImage(BRAND_IMG, 0, 0, width, height);
       brandContext.restore();
     };
-    paintBrand();
+    if (BRAND_IMG.complete && BRAND_IMG.naturalWidth) paintBrand();
+    else BRAND_IMG.addEventListener("load", paintBrand, { once: true });
 
     const radius = 20;
     const patch = document.createElement("canvas");
@@ -450,6 +652,12 @@
   function stepFacts(event) {
     const data = event.data || {};
     const input = parseToolInput(data.tool_input);
+    if (data.display_text) {
+      const rows = [["工具", data.tool_name], ["输入", safeJson(input)], ["返回", data.summary]];
+      if (data.source) rows.push(["来源", data.source]);
+      if (data.excerpt) rows.push(["原文", data.excerpt]);
+      return rows;
+    }
     const rows = [["工具", data.tool_name]];
     if (data.tool_name === "get_schema") {
       const tables = Array.isArray(input.tables) ? input.tables : [];
@@ -535,6 +743,7 @@
 
   function processCopy(event) {
     const data = event.data || {};
+    if (data.display_text) return data.display_text;
     const input = parseToolInput(data.tool_input);
     if (data.tool_name === "get_schema") {
       return data.success === false ? "查看表结构——未完成" : "查看团队与费用表结构——已返回两张表字段结构";
@@ -632,8 +841,7 @@
       const previous = this.generations[this.generations.length - 1];
       if (previous) previous.sourceClosed = true;
       const id = this.generationId(turn);
-      const firstForFixtureTurn = !this.latestByTurn.has(turn);
-      const intentId = firstForFixtureTurn && turn === 1 ? "inspect-schema" : firstForFixtureTurn && turn === 2 ? "compare-months" : "intent-" + id + "-1";
+      const intentId = "intent-" + id + "-1";
       const queued = this.pendingByTurn.get(turn) || [];
       const generation = {
         id,
@@ -794,9 +1002,9 @@
   function readingGate(kind, text) {
     const count = Array.from(text || "").length;
     const rules = {
-      l0: { base: 420, per: 20, min: 850, max: 1500 },
-      l1: { base: 250, per: 18, min: 600, max: 1050 },
-      l2: { base: 200, per: 16, min: 450, max: 850 }
+      l0: { base: 650, per: 55, min: 1500, max: 2800 },
+      l1: { base: 450, per: 45, min: 1150, max: 2200 },
+      l2: { base: 650, per: 55, min: 1700, max: 3800 }
     }[kind];
     return Math.max(rules.min, Math.min(rules.max, rules.base + rules.per * count));
   }
@@ -1000,6 +1208,7 @@
     async showGeneration(generation) {
       this.root.classList.add("visible");
       const changed = this.visibleGeneration && this.visibleGeneration.id !== generation.id;
+      if (changed && !(await this.run.sleep(REDUCED_MOTION ? 0 : 650))) return false;
       if (changed && !(await this.swapGeneration(() => {
         this.resetProcessWindow(false);
         this.depositedRows.clear();
@@ -1020,6 +1229,7 @@
     async showIntent(generation, intent) {
       if (!this.visibleGeneration || this.visibleGeneration.id !== generation.id) return false;
       if (this.visibleIntent && this.visibleIntent.id !== intent.id) {
+        if (!(await this.run.sleep(REDUCED_MOTION ? 0 : 450))) return false;
         if (!(await this.swapIntent(() => {
           this.resetProcessWindow(true);
           this.intent.textContent = intent.text;
@@ -1124,8 +1334,7 @@
         const generationMarker = el("span", "tree-marker", "▸");
         generationMarker.setAttribute("aria-hidden", "true");
         const label = el("span", "", generation.reaction);
-        const intentText = generation.intents.map((intent) => intent.text).filter(Boolean).join(" / ");
-        if (intentText) label.appendChild(el("span", "gen-intent", intentText));
+
         generationButton.append(generationMarker, label);
         const children = el("div", "archive-children");
         children.id = "archive-" + generation.id;
@@ -1133,16 +1342,28 @@
         this.branch(generation.id, generationButton, generationMarker, children, generationSection, "children");
 
         generation.intents.forEach((intent) => {
+          const intentSection = el("section", "archive-intent");
+          const intentButton = el("button", "tree-row");
+          intentButton.type = "button";
+          const intentMarker = el("span", "tree-marker", "▸");
+          intentMarker.setAttribute("aria-hidden", "true");
+          intentButton.append(intentMarker, el("span", "", intent.text));
+          const intentChildren = el("div", "archive-children");
+          intentChildren.id = "archive-" + intent.id;
+          intentButton.setAttribute("aria-controls", intentChildren.id);
+          this.branch(intent.id, intentButton, intentMarker, intentChildren, intentSection, "children");
+          intentSection.append(intentButton, intentChildren);
+          children.appendChild(intentSection);
           intent.processes.forEach((process) => {
             const section = el("section", "archive-process");
             this.archiveLeaf(section, generation.id + "/" + process.id, process.text, processFacts(process));
-            children.appendChild(section);
+            intentChildren.appendChild(section);
           });
         });
         llmCallsOf(generation).forEach((event, index) => {
           const section = el("section", "archive-process");
           const turn = event.data && Number.isFinite(Number(event.data.turn)) ? event.data.turn : index + 1;
-          this.archiveLeaf(section, generation.id + "/llm-" + turn, "模型推理——" + ((event.data && event.data.model) || "未提供"), llmFacts(event));
+          this.archiveLeaf(section, generation.id + "/llm-" + index, "模型推理——" + ((event.data && event.data.model) || "未提供"), llmFacts(event));
           children.appendChild(section);
         });
         if (!generation.intents.some((intent) => intent.processes.length) && generation.pendingEvents.length) {
@@ -1177,11 +1398,16 @@
       this.renderArchive(true);
       refs.forEach((reference) => {
         const processKey = reference.generationId + "/" + reference.processId;
-        [reference.generationId, processKey].forEach((key) => {
+        const generation = this.store.byId.get(reference.generationId);
+        const intent = generation && generation.intents.find((item) => item.processes.some((process) => process.id === reference.processId));
+        [reference.generationId, intent && intent.id, processKey].filter(Boolean).forEach((key) => {
           const branch = this.archiveBranches.get(key);
           if (branch) this.setBranch(branch, true);
         });
       });
+      const first = refs[0];
+      const target = first && this.archiveBranches.get(first.generationId + "/" + first.processId);
+      if (target) target.section.scrollIntoView({ behavior: "auto", block: "center" });
     }
 
     async settle(summary) {
@@ -1195,6 +1421,7 @@
       this.mark.classList.add("hidden");
       if (!(await this.run.sleep(160))) return false;
 
+      this.processList.replaceChildren();
       this.root.classList.add("settled");
       this.mark.classList.remove("hidden");
       this.mark.classList.add("tick-slot");
@@ -1215,13 +1442,25 @@
   }
 
   const ANSWER_BITS = [
-    '<p class="lead">6 月总费用为 300,000 元，较 5 月的 220,000 元增加 80,000 元（36.4%）。<a class="cite" href="#evidence" data-evidence="turn-2|june-cost,turn-2|may-cost">①</a></p>',
-    '<h3>主要变化</h3>',
-    '<p>团队 A 从 120,000 元升至 180,000 元，增加 60,000 元，占总增量的 75%，是本轮数据中最主要的增长来源。<a class="cite" href="#evidence" data-evidence="turn-2|june-cost,turn-2|may-cost">①</a></p>',
-    '<ul><li>团队 B：60,000 元 → 72,000 元，增加 12,000 元。</li><li>团队 C：40,000 元 → 48,000 元，增加 8,000 元。</li></ul>',
-    '<h3>本轮边界</h3>',
-    '<div class="witness"><p>本轮只查询了按团队汇总的月度费用，尚未按费用类别拆分。<a class="cite" href="#evidence" data-evidence="turn-1|schema,turn-2|june-cost,turn-2|may-cost">②</a></p><p>具体增加了哪些费用，需要进一步按类别查询，不能由团队汇总直接推断。</p></div>'
-  ];
+  "<p class=\"lead\">不能把“删除后多久彻底清除”回答成一个统一时限。按当前知识库，标准云服务的在线文件与备份副本分别处理：在线文件在删除请求确认后 24 小时内清除，备份随轮转在 30 天内清除；法律保留属于例外。<a class=\"cite\" href=\"#evidence\" data-evidence=\"turn-1|call-new,turn-2|call-version\">①</a><a class=\"cite\" href=\"#evidence\" data-evidence=\"turn-2|call-scope,turn-3|call-exception\">③</a></p>",
+  "<p>客户提到的“删除后还能不能访问”，与“所有副本是否已经物理清除”也是两个问题。备份尚在保留期，并不意味着客户仍可查询或下载。以下按文件所在位置、规范版本和适用条件分别说明。</p>",
+  "<h3>1. 在线文件与备份，为什么是两个时限</h3>",
+  "<p>现行《文件生命周期规范》将在线文件和备份分开约定。在线文件的清除从删除请求确认后计算，时限为 24 小时；备份沿既定轮转周期清除，最长为 30 天。因此，在线文件已清除时，备份副本仍可能处于保留期，两者并不矛盾。<a class=\"cite\" href=\"#evidence\" data-evidence=\"turn-1|call-new,turn-2|call-version\">①</a></p>",
+  "<p>对外沟通应保留“请求确认后”这一计时起点，不能直接改成“用户点击删除后”。现有引用没有给出前端点击与后台确认之间的时差，也没有证明某个具体文件此刻已经完成清除。制度规定的最长时限与单个文件的实际处理状态，需要分别核对。</p>",
+  "<h3>2. 备份保留期间，谁还能读取</h3>",
+  "<p>《备份与恢复规范》说明，备份副本与在线服务隔离，不提供用户查询或下载入口，仅用于授权的灾难恢复。这支持“用户不能通过常规产品入口读取备份”的表述，但不能扩展成“任何人、任何情况下都无法访问”，因为授权恢复本身就是规定允许的用途。<a class=\"cite\" href=\"#evidence\" data-evidence=\"turn-3|call-isolation,turn-3|call-restore\">②</a></p>",
+  "<p>恢复还有一道后续约束：数据重新提供服务前，必须重放删除标记。也就是说，从历史备份恢复数据时，需要再次执行已记录的删除要求，不能直接把整个旧快照重新开放给用户。该条款说明了恢复流程应如何处理已删除文件，并不等于本轮已经审计过恢复任务的实际执行。<a class=\"cite\" href=\"#evidence\" data-evidence=\"turn-3|call-isolation,turn-3|call-restore\">②</a></p>",
+  "<h3>3. 为什么没有采用 FAQ 中的“7 天”</h3>",
+  "<p>本轮检索同时命中了旧版 FAQ 和现行规范。旧版 FAQ 写的是 7 天，但文档已归档；版本变更记录明确，v2.3 自 2026 年 8 月 1 日生效，并替代 v1.8 的删除时限说明。因此，当前标准云服务应使用 v2.3 的口径，不能将两个版本的数字混在一起，也不能取其中更短的数字作为承诺。<a class=\"cite\" href=\"#evidence\" data-evidence=\"turn-1|call-old,turn-2|call-version\">④</a></p>",
+  "<p>这里的关键依据是明确的版本替代关系，而不仅是文件更新时间更近。如果后续查到客户专属合同或另一部署版本的规范，还需要重新确认适用性，不能只凭当前这份通用文档下结论。</p>",
+  "<h3>4. 两类情况不能直接套用上述时限</h3>",
+  "<ul><li>私有部署或专属合同：现行规范限定于标准云服务，其他部署方式和专属约定需要单独核对。</li><li>法律保留：已进入法律保留的文件不适用常规清除时限；解除保留后，按批准流程处理。本轮材料没有给出解除后的统一清除天数。</li></ul>",
+  "<p>因此，在未确认客户部署方式、合同约定和文件保留状态前，可以解释通用规则，但不宜直接承诺“您的文件一定在 30 天内全部清除”。<a class=\"cite\" href=\"#evidence\" data-evidence=\"turn-2|call-scope,turn-3|call-exception\">③</a></p>",
+  "<h3>5. 建议给客户的回复</h3>",
+  "<div class=\"witness\"><p>如果您使用的是标准云服务，且文件不涉及法律保留，按现行规范，在线文件会在删除请求确认后 24 小时内清除，备份副本随轮转在 30 天内清除。</p><p>备份保留期间不提供用户查询或下载入口，仅用于授权的灾难恢复；恢复数据重新提供服务前，还须重放删除标记。</p><p>我们需要进一步确认您的部署方式、是否存在专属合同约定，以及此次删除请求的确认时间，才能核实具体文件的清除安排。</p></div>",
+  "<h3>6. 本轮仍未确认的内容</h3>",
+  "<p>本轮核对的是知识库中的规范，并未查询客户实例或实际删除日志。尚未确认客户的部署类型、专属合同、法律保留状态、请求确认时间，以及在线文件和备份的实际清除结果。若客户需要清除完成证明，下一步应查询对应操作记录，而不是将文档时限当成已完成的凭证。</p>"
+];
 
   function buildAnswerStream(bits) {
     const stream = [];
@@ -1270,7 +1509,12 @@
     if (!(await run.sleep(16))) return false;
     answer.classList.remove("birth");
 
+    let previousContainer = null;
     for (const token of stream) {
+      if (previousContainer && previousContainer !== token.container) {
+        if (!(await run.sleep(REDUCED_MOTION ? 0 : (previousContainer.tagName === "H3" ? 380 : 650)))) return false;
+      }
+      previousContainer = token.container;
       if (run.cancelled) return false;
       if (!token.root.parentNode) {
         token.root.classList.add("birth");
@@ -1287,7 +1531,8 @@
       else character.appendChild(token.element);
       token.container.appendChild(character);
       window.setTimeout(() => character.classList.add("visible"), REDUCED_MOTION ? 0 : 16);
-      if (!(await run.sleep(REDUCED_MOTION ? 0 : 20))) return false;
+      const pause = token.character && /[。！？；]/.test(token.character) ? 130 : token.character && /[，：]/.test(token.character) ? 65 : 22;
+      if (!(await run.sleep(REDUCED_MOTION ? 0 : pause))) return false;
     }
     if (!(await run.sleep(REDUCED_MOTION ? 0 : 400))) return false;
     showSources(host, trace);
@@ -1297,10 +1542,7 @@
   function showSources(host, trace) {
     const sources = el("section", "sources");
     sources.setAttribute("aria-label", "数据依据");
-    const items = [
-      ["①", "5 月与 6 月各团队费用", "两次团队汇总查询", "turn-2|june-cost,turn-2|may-cost"],
-      ["②", "本轮可判断的范围", "表结构与两次汇总查询", "turn-1|schema,turn-2|june-cost,turn-2|may-cost"]
-    ];
+    const items = [["①", "文件生命周期规范", "现行条款与版本变更", "turn-1|call-new,turn-2|call-version"], ["②", "备份与恢复规范", "隔离访问与删除重放", "turn-3|call-isolation,turn-3|call-restore"], ["③", "适用范围与保留例外", "部署方式与法律保留", "turn-2|call-scope,turn-3|call-exception"], ["④", "旧版 FAQ 与替代记录", "7 天口径的版本核对", "turn-1|call-old,turn-2|call-version"]];
     items.forEach(([number, title, meta, evidence]) => {
       const source = el("div", "source");
       const button = el("button");
@@ -1440,7 +1682,7 @@
     document.querySelectorAll(".dev-drawer, .dev-scrim").forEach((node) => node.remove());
     devDrawer = null;
 
-    const store = new TraceStore("6 月份团队费用为什么上升？");
+    const store = new TraceStore("客户上传的文件删除后，多久会彻底清除？备份还能访问吗？");
     const turn = el("section", "turn");
     const question = el("div", "question");
     const questionCopy = el("div", "", store.question);
@@ -1456,7 +1698,8 @@
     const feeder = feedAgentStream(store, run);
     const terminal = await player.playAll();
     if (!terminal || !(await feeder)) return;
-    const summary = terminal.hasAnswer ? "已核对团队费用变化" : "未形成可核验结论";
+    const summary = terminal.hasAnswer ? "已核对删除时限、备份规则与适用范围" : "未形成可核验结论";
+    if (!(await run.sleep(REDUCED_MOTION ? 0 : 800))) return;
     if (!(await trace.settle(summary))) return;
     if (!terminal.hasAnswer) return;
     if (!(await run.sleep(180))) return;
